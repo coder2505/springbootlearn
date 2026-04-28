@@ -16,7 +16,7 @@ public class GetStudentService {
     StudentInterface studentInterface;
 
     public List<StudentModel> GetAllStudents() {
-
+        
         return studentInterface.findAll();
 
     }

@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.models.StudentModel;
 import com.example.demo.repository.StudentInterface;
 
@@ -12,22 +13,22 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class DeleteStudentService {
-    
+
     private final StudentInterface studentInterface;
 
-    public String DeleteStudentById(String id){
-        
-        Optional<StudentModel> optionalStudent =  studentInterface.findById(id);
+    public void DeleteStudentById(String id) {
 
-        if(optionalStudent.isPresent()){
-            
+        Optional<StudentModel> optionalStudent = studentInterface.findById(id);
+
+        if (optionalStudent.isPresent()) {
+
             studentInterface.deleteById(id);
-            return "Success";
 
+        } else {
+
+            throw new ResourceNotFoundException("id does not exist to delete");
+            
         }
-
-        return "Id is not present in the database";
-
 
     }
 

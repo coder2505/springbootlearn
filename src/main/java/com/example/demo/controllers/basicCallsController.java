@@ -2,7 +2,9 @@ package com.example.demo.controllers;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,12 +12,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.models.ApiResponse;
 import com.example.demo.models.StudentModel;
 import com.example.demo.services.DeleteStudentService;
 import com.example.demo.services.GetStudentService;
 import com.example.demo.services.PutStudentService;
 import com.example.demo.services.SaveStudentService;
-
 
 @RestController
 public class basicCallsController {
@@ -25,7 +28,8 @@ public class basicCallsController {
     private final DeleteStudentService deleteStudentService;
     private final PutStudentService putStudentService;
 
-    public basicCallsController(SaveStudentService saveStudentService, GetStudentService getStudentService, DeleteStudentService deleteStudentService, com.example.demo.services.PutStudentService putStudentService) {
+    public basicCallsController(SaveStudentService saveStudentService, GetStudentService getStudentService,
+            DeleteStudentService deleteStudentService, com.example.demo.services.PutStudentService putStudentService) {
         this.saveStudentService = saveStudentService;
         this.getStudentService = getStudentService;
         this.deleteStudentService = deleteStudentService;
@@ -33,23 +37,51 @@ public class basicCallsController {
     }
 
     @GetMapping
-    public List<StudentModel> getMethodName() {
-        return getStudentService.GetAllStudents();
+    public ResponseEntity<ApiResponse<List<StudentModel>>> getMethodName() {
+        List<StudentModel> resp = getStudentService.GetAllStudents();
+        ApiResponse<List<StudentModel>> obj = new ApiResponse<>(true, "Fetched Succcesfully", resp);
+        return ResponseEntity.ok(obj);
     }
 
     @PostMapping
-    public StudentModel postMethodName(@RequestBody StudentModel model) {        
-        return saveStudentService.createAndSaveStudent(model);
-    }
-    
-    @PutMapping("/put/{id}")
-    public String putMethodName(@PathVariable String id, @RequestBody StudentModel student) {  
-        return putStudentService.PutStudent(id, student);
+    public ResponseEntity<ApiResponse<StudentModel>> postMethodName(@RequestBody StudentModel model) {
+        StudentModel s = saveStudentService.createAndSaveStudent(model);
+        ApiResponse<StudentModel> obj = new ApiResponse<>(true, "updated successfully", s);
+        return ResponseEntity.ok(obj);
     }
 
+    @PutMapping("/put/{id}")
+    public ResponseEntity<ApiResponse<StudentModel>> putMethodName(@PathVariable String id, @RequestBody StudentModel student) {
+
+        StudentModel updatedStudent = putStudentService.PutStudent(id, student);
+
+        ApiResponse<StudentModel> response = new ApiResponse<>(
+                true,
+                "Student updated successfully",
+                updatedStudent
+        );
+
+        return ResponseEntity.ok(response);
+    }
 
     @DeleteMapping("/delete/{id}")
-    public String deleteMethodName(@PathVariable String id){
-        return deleteStudentService.DeleteStudentById(id);
+    public ResponseEntity<ApiResponse<Void>> deleteMethodName(@PathVariable String id) {
+
+        deleteStudentService.DeleteStudentById(id);
+
+        ApiResponse<Void> response = new ApiResponse<>(
+                true,
+                "Student deleted successfully",
+                null);
+
+        return ResponseEntity.ok(response);
     }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ApiResponse<Void> resourceNotFound(ResourceNotFoundException ex) {
+
+        return new ApiResponse<>(false, ex.getMessage(), null);
+
+    }
+
 }
