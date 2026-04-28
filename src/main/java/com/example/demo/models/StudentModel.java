@@ -16,7 +16,7 @@ import lombok.Setter;
 public class StudentModel {
     
     @Id
-    int id;
+    String id;
     String name,roll_number, address;
     int marks;
 

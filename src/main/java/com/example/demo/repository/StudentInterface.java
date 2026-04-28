@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 import com.example.demo.models.StudentModel;
 
 @Repository
-public interface StudentInterface extends MongoRepository<StudentModel, Integer> {
+public interface StudentInterface extends MongoRepository<StudentModel, String> {
     
     // GET METHODS
     StudentModel findByName(String name);  
