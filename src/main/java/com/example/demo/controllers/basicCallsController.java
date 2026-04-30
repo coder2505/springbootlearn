@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,13 +11,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.models.ApiResponse;
 import com.example.demo.models.StudentModel;
 import com.example.demo.services.DeleteStudentService;
 import com.example.demo.services.GetStudentService;
 import com.example.demo.services.PutStudentService;
 import com.example.demo.services.SaveStudentService;
+
+import jakarta.validation.Valid;
 
 @RestController
 public class basicCallsController {
@@ -39,14 +39,14 @@ public class basicCallsController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<StudentModel>>> getMethodName() {
         List<StudentModel> resp = getStudentService.GetAllStudents();
-        ApiResponse<List<StudentModel>> obj = new ApiResponse<>(true, "Fetched Succcesfully", resp);
+        ApiResponse<List<StudentModel>> obj = new ApiResponse<>(true, "Fetched Succcesfully",200, resp);
         return ResponseEntity.ok(obj);
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<StudentModel>> postMethodName(@RequestBody StudentModel model) {
+    public ResponseEntity<ApiResponse<StudentModel>> postMethodName(@Valid @RequestBody StudentModel model) {
         StudentModel s = saveStudentService.createAndSaveStudent(model);
-        ApiResponse<StudentModel> obj = new ApiResponse<>(true, "updated successfully", s);
+        ApiResponse<StudentModel> obj = new ApiResponse<>(true, "updated successfully",200, s);
         return ResponseEntity.ok(obj);
     }
 
@@ -58,6 +58,7 @@ public class basicCallsController {
         ApiResponse<StudentModel> response = new ApiResponse<>(
                 true,
                 "Student updated successfully",
+                200,
                 updatedStudent
         );
 
@@ -72,16 +73,10 @@ public class basicCallsController {
         ApiResponse<Void> response = new ApiResponse<>(
                 true,
                 "Student deleted successfully",
+                200,
                 null);
 
         return ResponseEntity.ok(response);
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ApiResponse<Void> resourceNotFound(ResourceNotFoundException ex) {
-
-        return new ApiResponse<>(false, ex.getMessage(), null);
-
     }
 
 }

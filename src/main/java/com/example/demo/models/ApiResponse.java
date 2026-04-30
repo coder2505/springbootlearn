@@ -9,6 +9,7 @@ public class ApiResponse<T> {
 
     Boolean success;
     String message;
+    int code;
     T data;
     
 }
